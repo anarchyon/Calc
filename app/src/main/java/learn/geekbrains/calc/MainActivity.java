@@ -57,7 +57,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initClickListeners() {
+        keyAC.setOnClickListener(b -> setStartingPosition());
+
         keyDot.setOnClickListener(b -> dotHandler());
+
         key0.setOnClickListener(b -> numHandler((MaterialButton) b));
         key1.setOnClickListener(b -> numHandler((MaterialButton) b));
         key2.setOnClickListener(b -> numHandler((MaterialButton) b));
@@ -69,24 +72,12 @@ public class MainActivity extends AppCompatActivity {
         key8.setOnClickListener(b -> numHandler((MaterialButton) b));
         key9.setOnClickListener(b -> numHandler((MaterialButton) b));
 
-        keyPlus.setOnClickListener(b -> {
-            calc.setOperation(Calculator.SUM);
-            operandHandler((MaterialButton) b);
-        });
-        keyMinus.setOnClickListener(b -> {
-            calc.setOperation(Calculator.DIFF);
-            operandHandler((MaterialButton) b);
-        });
-        keyProduction.setOnClickListener(b -> {
-            calc.setOperation(Calculator.PROD);
-            operandHandler((MaterialButton) b);
-        });
-        keyDivide.setOnClickListener(b -> {
-            calc.setOperation(Calculator.DIV);
-            operandHandler((MaterialButton) b);
-        });
+        keyPlus.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.SUM));
+        keyMinus.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.DIFF));
+        keyProduction.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.PROD));
+        keyDivide.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.DIV));
 
-        keyAC.setOnClickListener(b -> setStartingPosition());
+        keyEquals.setOnClickListener(b -> resultHandler());
     }
 
     private void setStartingPosition() {
@@ -95,17 +86,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void numHandler(MaterialButton b) {
-        calc.appendString(b.getText().toString());
+        calc.inputNumber(b.getText().toString());
         textField.setText(calc.getSequence());
     }
 
     private void dotHandler() {
-        calc.appendString(String.valueOf(Calculator.DOT));
+        calc.inputNumber(String.valueOf(Calculator.DOT));
+        textField.setText(calc.getSequence());
     }
 
-    private void operandHandler(MaterialButton button) {
-        calc.setNumber1();
-        textField.setText(String.valueOf(calc.getNumber1()));
+    private void operationHandler(MaterialButton b, int operation) {
+        calc.inputOperation(operation, b.getText().toString());
+        textField.setText(calc.getSequence());
     }
 
+    private void resultHandler() {
+        calc.inputEquals();
+        textField.setText(calc.getSequence());
+    }
 }
