@@ -64,14 +64,18 @@ public class Calculator {
         }
     }
 
-    private void normalizeCompleteOperand(StringBuilder operand) {
+    protected StringBuilder normalizeCompleteOperand(StringBuilder operand) {
         if (operand.toString().equals("")) {
             operand.append(ZERO);
-        } else if (operand.charAt(operand.length() - 1) == DOT) {
-            operand.delete(operand.length() - 1, operand.length());
         }
-        operand = new StringBuilder(operand.toString().replaceAll("\\.0*$|\\.\\d+0*$|\\.$", "")
-                .replaceAll("\\.$", ""));
+        String s = operand.toString();
+        StringBuilder result = new StringBuilder();
+        if (s.contains(String.valueOf(DOT))) {
+            result.append(s.replaceAll("0*$|\\.0*$", ""));
+        } else {
+            result.append(s);
+        }
+        return result;
     }
 
     public double getResult() {
@@ -108,12 +112,12 @@ public class Calculator {
         }
         this.operationSymbol = operationSymbol;
         this.operation = operation;
-        normalizeCompleteOperand(operand1);
+        operand1 = normalizeCompleteOperand(operand1);
     }
 
     private void calculate() {
-        normalizeCompleteOperand(operand1);
-        normalizeCompleteOperand(operand2);
+        operand1 = normalizeCompleteOperand(operand1);
+        operand2 = normalizeCompleteOperand(operand2);
         number1 = Double.parseDouble(operand1.toString());
         number2 = Double.parseDouble(operand2.toString());
         switch (operation) {
@@ -133,7 +137,8 @@ public class Calculator {
         operand1 = new StringBuilder(String.valueOf(result));
         operand2 = new StringBuilder();
         operation = 0;
-        normalizeCompleteOperand(operand1);
+        operationSymbol = "";
+        operand1 = normalizeCompleteOperand(operand1);
     }
 
     private void normalizeResult() {
@@ -147,4 +152,11 @@ public class Calculator {
     public void inputAC() {
     }
 
+    public StringBuilder getOperand1() {
+        return operand1;
+    }
+
+    public void setOperand1(StringBuilder operand1) {
+        this.operand1 = operand1;
+    }
 }

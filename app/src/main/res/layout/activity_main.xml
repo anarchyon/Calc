@@ -6,10 +6,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MainActivity">
 
-    <TableRow
-        android:layout_weight="1">
+    <TableRow>
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_height="match_parent"
+            android:layout_height="150dp"
             android:layout_weight="1"
             android:padding="8dp"
             app:boxBackgroundColor="#C1D5F6">
@@ -18,35 +17,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:textAlignment="textEnd"
-                android:textSize="35sp"
+                android:textSize="35dp"
                 android:text="@string/calc_screen_init_value"
                 android:clickable="false"
                 android:focusable="false"
                 android:cursorVisible="false"
-                android:focusableInTouchMode="false" />
+                android:focusableInTouchMode="false"
+                android:inputType="text"/>
         </com.google.android.material.textfield.TextInputLayout>
     </TableRow>
     <TableRow
         android:layout_weight="0.3">
         <com.google.android.material.button.MaterialButton
             style="@style/my_button_operands"
-            android:textSize="20sp"
             android:textColor="#BF360C"
             android:id="@+id/key_AC"
             android:text="@string/key_AC"/>
         <com.google.android.material.button.MaterialButton
             style="@style/my_button_operands"
-            android:textSize="20sp"
             android:id="@+id/key_MC"
             android:text="@string/key_MC"/>
         <com.google.android.material.button.MaterialButton
             style="@style/my_button_operands"
-            android:textSize="20sp"
             android:id="@+id/key_MR"
             android:text="@string/key_MR"/>
         <com.google.android.material.button.MaterialButton
             style="@style/my_button_operands"
-            android:textSize="20sp"
             android:id="@+id/key_MS"
             android:text="@string/key_MS"/>
     </TableRow>
