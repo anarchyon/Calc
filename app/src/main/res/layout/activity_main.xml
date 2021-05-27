@@ -8,10 +8,13 @@
 
     <TableRow>
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_field_layout"
             android:layout_height="150dp"
             android:layout_weight="1"
             android:padding="8dp"
-            app:boxBackgroundColor="#C1D5F6">
+            app:boxBackgroundColor="#C1D5F6"
+            app:errorEnabled="true"
+            app:helperTextEnabled="true">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_field_result"
                 android:layout_width="match_parent"
@@ -23,7 +26,8 @@
                 android:focusable="false"
                 android:cursorVisible="false"
                 android:focusableInTouchMode="false"
-                android:inputType="text"/>
+                android:inputType="numberDecimal|numberSigned"
+                app:errorEnabled="true"/>
         </com.google.android.material.textfield.TextInputLayout>
     </TableRow>
     <TableRow
