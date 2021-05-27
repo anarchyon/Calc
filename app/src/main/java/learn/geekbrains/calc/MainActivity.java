@@ -121,5 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void memorySaveHandler() {calc.memorySave();}
 
-    private void memoryReadHandler() {calc.memoryRead();}
+    private void memoryReadHandler() {
+        //calc.memoryRead();
+    }
 }
