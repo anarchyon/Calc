@@ -1,130 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:stretchColumns="*"
     tools:context=".MainActivity">
 
     <TableRow>
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/text_field_layout"
-            android:layout_height="150dp"
-            android:layout_weight="1"
-            android:padding="8dp"
-            app:boxBackgroundColor="#C1D5F6"
-            app:errorEnabled="true"
-            app:helperTextEnabled="true">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/text_field_result"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textAlignment="textEnd"
-                android:textSize="35dp"
-                android:text="@string/calc_screen_init_value"
-                android:clickable="false"
-                android:focusable="false"
-                android:cursorVisible="false"
-                android:focusableInTouchMode="false"
-                android:inputType="numberDecimal|numberSigned"
-                app:errorEnabled="true"/>
-        </com.google.android.material.textfield.TextInputLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/standard_margin_padding"
+            android:layout_span="4"
+            android:background="@color/screen_color">
+
+            <TableRow>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_field_memory"
+                    android:layout_height="match_parent"
+                    android:gravity="top"
+                    android:textSize="@dimen/text_size_memory"/>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_field_history"
+                    android:layout_height="@dimen/screen_height_portrait"
+                    android:layout_weight="1"
+                    android:gravity="bottom|end"
+                    android:paddingStart="@dimen/standard_margin_padding"
+                    android:paddingEnd="@dimen/standard_margin_padding"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_size_history" />
+            </TableRow>
+
+            <TableRow>
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/text_field_input"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:paddingStart="@dimen/standard_margin_padding"
+                    android:paddingEnd="@dimen/standard_margin_padding"
+                    android:text="@string/calc_screen_init_value"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_size_input" />
+            </TableRow>
+        </TableLayout>
+
+
     </TableRow>
-    <TableRow
-        android:layout_weight="0.3">
+
+    <TableRow android:layout_weight="0.3">
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
-            android:textColor="#BF360C"
             android:id="@+id/key_AC"
-            android:text="@string/key_AC"/>
+            style="@style/my_button_operands.small_button"
+            android:text="@string/key_AC"
+            android:textColor="@color/text_color_AC_button" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
             android:id="@+id/key_MC"
-            android:text="@string/key_MC"/>
+            style="@style/my_button_operands.small_button"
+            android:text="@string/key_MC" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
             android:id="@+id/key_MR"
-            android:text="@string/key_MR"/>
+            style="@style/my_button_operands.small_button"
+            android:text="@string/key_MR" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
             android:id="@+id/key_MS"
-            android:text="@string/key_MS"/>
+            style="@style/my_button_operands.small_button"
+            android:text="@string/key_MS" />
     </TableRow>
-    <TableRow
-        android:layout_weight="1">
+
+    <TableRow android:layout_weight="1">
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button"
             android:id="@+id/key_7"
-            android:text="@string/key_7"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
+            android:text="@string/key_7" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_8"
-            android:text="@string/key_8"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
-        android:id="@+id/key_9"
-        android:text="@string/key_9"/>
+            android:text="@string/key_8" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
+            android:id="@+id/key_9"
+            style="@style/my_button"
+            android:text="@string/key_9" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_divide"
-            android:text="@string/key_divide"/>
+            style="@style/my_button_operands"
+            android:text="@string/key_divide" />
     </TableRow>
-    <TableRow
-        android:layout_weight="1">
+
+    <TableRow android:layout_weight="1">
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button"
             android:id="@+id/key_4"
-            android:text="@string/key_4"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
+            android:text="@string/key_4" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_5"
-            android:text="@string/key_5"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
+            android:text="@string/key_5" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_6"
-            android:text="@string/key_6"/>
+            style="@style/my_button"
+            android:text="@string/key_6" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
             android:id="@+id/key_production"
-            android:text="@string/key_production"/>
+            style="@style/my_button_operands"
+            android:text="@string/key_production" />
     </TableRow>
-    <TableRow
-        android:layout_weight="1">
+
+    <TableRow android:layout_weight="1">
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button"
             android:id="@+id/key_1"
-            android:text="@string/key_1"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
+            android:text="@string/key_1" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_2"
-            android:text="@string/key_2"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
+            android:text="@string/key_2" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_3"
-            android:text="@string/key_3"/>
+            style="@style/my_button"
+            android:text="@string/key_3" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
             android:id="@+id/key_minus"
-            android:text="@string/key_minus"/>
+            style="@style/my_button_operands"
+            android:text="@string/key_minus" />
     </TableRow>
-    <TableRow
-        android:layout_weight="1">
+
+    <TableRow android:layout_weight="1">
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button"
             android:id="@+id/key_0"
-            android:text="@string/key_0"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button"
+            android:text="@string/key_0" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_dot"
-            android:text="@string/key_dot"/>
+            style="@style/my_button"
+            android:text="@string/key_dot" />
+
         <com.google.android.material.button.MaterialButton
-            style="@style/my_button_operands"
             android:id="@+id/key_equal"
-            android:text="@string/key_equal"/>
-        <com.google.android.material.button.MaterialButton
             style="@style/my_button_operands"
+            android:text="@string/key_equal" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/key_plus"
-            android:text="@string/key_plus"/>
+            style="@style/my_button_operands"
+            android:text="@string/key_plus" />
     </TableRow>
 
 </TableLayout>

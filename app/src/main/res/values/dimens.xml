@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="screen_height_portrait">120dp</dimen>
+    <dimen name="standard_margin_padding">8dp</dimen>
+    <dimen name="text_size_history">20dp</dimen>
+    <dimen name="screen_width_land">250dp</dimen>
+    <dimen name="text_size_memory">16dp</dimen>
+    <dimen name="text_size_input">35dp</dimen>
+    <dimen name="text_size_button">35dp</dimen>
+    <dimen name="text_size_small_button">20dp</dimen>
+    <dimen name="corner_radius">0dp</dimen>
+    <dimen name="button_inset_top">0dp</dimen>
+    <dimen name="button_inset_bottom">0dp</dimen>
+    <dimen name="small_button_size_land">60dp</dimen>
+</resources>

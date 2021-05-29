@@ -1,8 +1,7 @@
 package learn.geekbrains.calc;
 
-import android.util.Log;
-
-import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Calculator {
     public static final int NO_OPERATION = 0;
@@ -12,119 +11,74 @@ public class Calculator {
     public static final int DIV = 4;
     public static final char DOT = '.';
     public static final char ZERO = '0';
-    private static final int CALCULATION_COMPLETED = 1;
-    private static final int CALCULATION_NOT_COMPLETED = 0;
-    private static final int ERROR_FOUND = 1;
-    private static final int ERROR_NOT_FOUND = 0;
+    public static final char EQUALS = '=';
     private static final int MEMORY_REGISTER_SAVED = 1;
     private static final int MEMORY_REGISTER_EMPTY = 0;
+    private static final String ERROR_DIVIDE_BY_ZERO = "Деление на ноль!";
 
-    private StringBuilder operand1, operand2;
-    private double number1, number2, result;
-    private String operationSymbol;
     private int operation;
     private double memoryRegister;
     private int memoryRegisterStatus;
-    private int calculationStatus;
-    private int errorStatus;
+    private String errorStatus;
+    private List<Double> operands;
 
-    private Callback<String> sendError;
-    private Callback<String> sendText;
+    private Callback<String> sendTextInput;
+    private Callback<String> sendTextHistoryAppend;
     private Callback<String> sendMemoryRegisterStatus;
+    private Callback<Boolean> sendIsNewOperandWaiting;
 
     public Calculator() {
+        operands = new ArrayList<>();
         operation = NO_OPERATION;
-        operand1 = new StringBuilder();
-        operand2 = new StringBuilder();
-        operationSymbol = "";
-        calculationStatus = CALCULATION_NOT_COMPLETED;
-        errorStatus = ERROR_NOT_FOUND;
+        errorStatus = "";
     }
 
-    public void inputNumber(String s) {
-        if (calculationStatus == CALCULATION_COMPLETED) {
-            operand1 = new StringBuilder();
-            calculationStatus = CALCULATION_NOT_COMPLETED;
+    private String normalizeString(Double m) {
+        String s = String.valueOf(m);
+        if (s.length() > 10) {
+            s = String.format("%e", m);
+        } else {
+            if (m == (int) ((double) m)) {
+                s = String.valueOf((int) ((double) m));
+            }
         }
-        if (operation == NO_OPERATION) {
-            if (s.equals(String.valueOf(DOT)) && operand1.toString().contains(String.valueOf(DOT))) {
+        return s;
+    }
+
+    public void inputOperation(String number, int operation, String operationSymbol) {
+        double operand = Double.parseDouble(number);
+        operands.add(operand);
+        String operandString = normalizeString(operand);
+        if (operands.size() > 1) {
+            operands.set(0, calculate());
+            sendTextInput.callback(normalizeString(operands.get(0)));
+            if (!errorStatus.isEmpty()) {
+                operands = new ArrayList<>();
+                sendTextHistoryAppend.callback(operandString + System.lineSeparator()
+                        + EQUALS + errorStatus + System.lineSeparator());
                 return;
             }
-            operand1.append(s);
-            if (operand1.toString().equals(String.valueOf(DOT))) operand1.insert(0, ZERO);
-            try {
-                number1 = Double.parseDouble(operand1.toString());
-            } catch (NumberFormatException e) {
-                sendError.callback("Разработчик натупил");
-                errorStatus = ERROR_FOUND;
-            }
+            operands.remove(1);
         } else {
-            if (s.equals(String.valueOf(DOT)) && operand2.toString().contains(String.valueOf(DOT))) {
-                return;
-            }
-            operand2.append(s);
-            if (operand2.toString().equals(String.valueOf(DOT))) operand2.insert(0, 0);
-            try {
-                number2 = Double.parseDouble(operand2.toString());
-            } catch (NumberFormatException e) {
-                sendError.callback("Разработчик натупил");
-                errorStatus = ERROR_FOUND;
-            }
+            sendTextInput.callback(String.valueOf(ZERO));
         }
-        if (errorStatus == ERROR_NOT_FOUND) {
-            sendText.callback(getSequence());
-        } else {
-            restoreCalc();
-        }
-    }
-
-    private void restoreCalc() {
-        errorStatus = ERROR_NOT_FOUND;
-        operation = NO_OPERATION;
-        operand1 = new StringBuilder();
-        operand2 = new StringBuilder();
-        operationSymbol = "";
-        calculationStatus = CALCULATION_NOT_COMPLETED;
-        number2 = 0;
-        number1 = 0;
-    }
-
-    public String getSequence() {
-        String s1, s2;
-        if (operand1.length() > 10) {
-            s1 = String.format("%e", number1);
-        } else {
-            if (number1 == (int) number1) {
-                s1 = String.valueOf((int) number1);
-            } else s1 = String.valueOf(number1);
-        }
-        if (operand2.toString().equals("")) {
-            s2 = operand2.toString();
-        } else if (operand2.length() > 10) {
-            s2 = String.format("%e", number2);
-        } else {
-            if (number2 == (int) number2) {
-                s2 = String.valueOf((int) number2);
-            } else s2 = String.valueOf(number2);
-        }
-        return s1 + operationSymbol + s2;
-    }
-
-    public void inputOperation(int operation, String operationSymbol) {
-        calculationStatus = CALCULATION_NOT_COMPLETED;
-        if (this.operation != NO_OPERATION) {
-            calculate();
-        }
-        this.operationSymbol = operationSymbol;
         this.operation = operation;
-        if (errorStatus == ERROR_NOT_FOUND) {
-            sendText.callback(getSequence());
-        } else {
-            restoreCalc();
-        }
+        sendIsNewOperandWaiting.callback(true);
+        sendTextHistoryAppend.callback(operandString + operationSymbol);
     }
 
-    private void calculate() {
+    private double calculate() {
+        double result = 0, number1, number2;
+        try {
+            number1 = operands.get(0);
+        } catch (IndexOutOfBoundsException e) {
+            number1 = 0;
+        }
+        try {
+            number2 = operands.get(1);
+        } catch (IndexOutOfBoundsException e) {
+            number2 = 0;
+        }
         switch (operation) {
             case SUM:
                 result = number1 + number2;
@@ -137,39 +91,48 @@ public class Calculator {
                 break;
             case DIV:
                 if (number2 == 0) {
-                    sendError.callback("Деление на ноль!");
-                    errorStatus = ERROR_FOUND;
-                    return;
-                }
-                result = number1 / number2;
+                    errorStatus = ERROR_DIVIDE_BY_ZERO;
+                    return 0;
+                } else result = number1 / number2;
                 break;
         }
-        restoreCalc();
-        operand1 = new StringBuilder(String.valueOf(result));
-        number1 = Double.parseDouble(operand1.toString());
-        result = 0;
+        return result;
     }
 
-    public void inputEquals() {
-        calculate();
-        calculationStatus = CALCULATION_COMPLETED;
-        if (errorStatus == ERROR_NOT_FOUND) {
-            sendText.callback(getSequence());
+    public void inputEquals(String number) {
+        double operand = Double.parseDouble(number);
+        String operandString = normalizeString(operand);
+        operands.add(operand);
+        double result = calculate();
+        String resultString = normalizeString(result);
+        operands = new ArrayList<>();
+        if (errorStatus.isEmpty()) {
+            sendTextHistoryAppend.callback(operandString + System.lineSeparator()
+                    + EQUALS + resultString + System.lineSeparator());
         } else {
-            restoreCalc();
+            sendTextHistoryAppend.callback(operandString + System.lineSeparator()
+                    + EQUALS + errorStatus + System.lineSeparator());
+            errorStatus = "";
         }
+        operation = NO_OPERATION;
+        sendIsNewOperandWaiting.callback(true);
+        sendTextInput.callback(resultString);
     }
 
-    public void setSendError(Callback<String> sendError) {
-        this.sendError = sendError;
+    public void setSendTextInput(Callback<String> sendTextInput) {
+        this.sendTextInput = sendTextInput;
     }
 
-    public void setSendText(Callback<String> sendText) {
-        this.sendText = sendText;
+    public void setSendTextHistoryAppend(Callback<String> sendTextHistoryAppend) {
+        this.sendTextHistoryAppend = sendTextHistoryAppend;
     }
 
     public void setSendMemoryRegisterStatus(Callback<String> sendMemoryRegisterStatus) {
         this.sendMemoryRegisterStatus = sendMemoryRegisterStatus;
+    }
+
+    public void setSendIsNewOperandWaiting(Callback<Boolean> sendIsNewOperandWaiting) {
+        this.sendIsNewOperandWaiting = sendIsNewOperandWaiting;
     }
 
     public void memoryClear() {
@@ -177,28 +140,46 @@ public class Calculator {
         sendMemoryRegisterStatus.callback("");
     }
 
-    public void memorySave() {
-        if (number1 != 0) {
+    public void memorySave(String number) {
+        if (!number.equals(String.valueOf(ZERO))) {
             memoryRegisterStatus = MEMORY_REGISTER_SAVED;
-            memoryRegister = number1;
+            memoryRegister = Double.parseDouble(number);
             sendMemoryRegisterStatus.callback("M");
         }
     }
 
-    //не доделано
-    /*public void memoryRead() {
+    public void memoryRead() {
         if (memoryRegisterStatus == MEMORY_REGISTER_SAVED) {
-            if (operation != NO_OPERATION) {
-                number1 = memoryRegister;
-            } else {
-                number2 = memoryRegister;
-            }
-            sendText.callback(getSequence());
-            if (errorStatus == ERROR_NOT_FOUND) {
-                sendText.callback(getSequence());
-            } else {
-                restoreCalc();
-            }
+            String savedNumberString = normalizeString(memoryRegister);
+            sendTextInput.callback(savedNumberString);
         }
-    }*/
+    }
+
+    public void inputPlusMinus(String number) {
+        double operand = -Double.parseDouble(number);
+        String operandString = normalizeString(operand);
+        sendTextInput.callback(operandString);
+    }
+
+    public void inputPercent(String number) {
+        double operand = Double.parseDouble(number) / 100;
+        String operandString = normalizeString(operand);
+        sendTextInput.callback(operandString);
+    }
+
+    public double getMemoryRegister() {
+        return memoryRegister;
+    }
+
+    public void setMemoryRegister(double memoryRegister) {
+        this.memoryRegister = memoryRegister;
+    }
+
+    public int getMemoryRegisterStatus() {
+        return memoryRegisterStatus;
+    }
+
+    public void setMemoryRegisterStatus(int memoryRegisterStatus) {
+        this.memoryRegisterStatus = memoryRegisterStatus;
+    }
 }
