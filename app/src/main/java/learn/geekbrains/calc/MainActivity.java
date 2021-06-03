@@ -1,20 +1,19 @@
 package learn.geekbrains.calc;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-import androidx.appcompat.widget.SwitchCompat;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Switch;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
@@ -36,6 +35,17 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVED_MEMORY_REGISTER_STATUS = "memRegStatus";
     private static final String ACTION_CALC = "gb.calc";
     private int currentMode;
+    private ActivityResultLauncher<Intent> getContent = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if (result.getResultCode() == RESULT_OK) {
+                Intent intent = getIntent();
+                // TODO: 03.06.2021
+            }
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,12 +64,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.change_theme) {
-            if (currentMode != AppCompatDelegate.MODE_NIGHT_YES) {
-                currentMode = AppCompatDelegate.MODE_NIGHT_YES;
-            } else {
-                currentMode = AppCompatDelegate.MODE_NIGHT_NO;
-            }
+        if (id == R.id.settings) {
+            Intent intent = new Intent();
+            getContent.launch(new Intent(this, SettingsActivity.class));
+
+//            if (currentMode != AppCompatDelegate.MODE_NIGHT_YES) {
+//                currentMode = AppCompatDelegate.MODE_NIGHT_YES;
+//            } else {
+//                currentMode = AppCompatDelegate.MODE_NIGHT_NO;
+//            }
         }
         AppCompatDelegate.setDefaultNightMode(currentMode);
         return true;
@@ -123,35 +136,35 @@ public class MainActivity extends AppCompatActivity {
     private void initClickListeners() {
         keyAC.setOnClickListener(b -> setStartingPosition());
 
-        keyDot.setOnClickListener(b -> dotHandler());
+        keyDot.setOnClickListener(b -> handleDotButton());
 
-        key0.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key1.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key2.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key3.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key4.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key5.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key6.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key7.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key8.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key9.setOnClickListener(b -> numHandler((MaterialButton) b));
+        key0.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key1.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key2.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key3.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key4.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key5.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key6.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key7.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key8.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key9.setOnClickListener(b -> handleNumButton((MaterialButton) b));
 
-        keyPlus.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.SUM));
-        keyMinus.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.DIFF));
-        keyProduction.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.PROD));
-        keyDivide.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.DIV));
+        keyPlus.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.SUM));
+        keyMinus.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.DIFF));
+        keyProduction.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.PROD));
+        keyDivide.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.DIV));
 
-        keyEquals.setOnClickListener(b -> resultHandler());
+        keyEquals.setOnClickListener(b -> handleEqualsButton());
 
-        keyMC.setOnClickListener(b -> memoryClearHandler());
-        keyMS.setOnClickListener(b -> memorySaveHandler());
-        keyMR.setOnClickListener(b -> memoryReadHandler());
+        keyMC.setOnClickListener(b -> handleMCButton());
+        keyMS.setOnClickListener(b -> handleMSButton());
+        keyMR.setOnClickListener(b -> handleMRButton());
 
         if (keyPercent != null) {
-            keyPercent.setOnClickListener(b -> percentHandler());
+            keyPercent.setOnClickListener(b -> handlePercentButton());
         }
         if (keyPlusMinus != null) {
-            keyPlusMinus.setOnClickListener(b -> plusMinusHandler());
+            keyPlusMinus.setOnClickListener(b -> handlePlusMinusButton());
         }
     }
 
@@ -181,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         textFieldMemory.setText(s);
     }
 
-    private void numHandler(MaterialButton b) {
+    private void handleNumButton(MaterialButton b) {
         if (isNewOperand) {
             textFieldInput.setText(String.valueOf(Calculator.ZERO));
             isNewOperand = false;
@@ -193,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void dotHandler() {
+    private void handleDotButton() {
         if (isNewOperand) {
             textFieldInput.setText(String.valueOf(Calculator.ZERO));
             isNewOperand = false;
@@ -201,12 +214,12 @@ public class MainActivity extends AppCompatActivity {
         textFieldInput.append(String.valueOf(Calculator.DOT));
     }
 
-    private void operationHandler(MaterialButton b, int operation) {
+    private void handleOperationButton(MaterialButton b, int operation) {
         calc.inputOperation(textFieldInput.getText().toString(), operation, b.getText().toString());
         saveState();
     }
 
-    private void resultHandler() {
+    private void handleEqualsButton() {
         calc.inputEquals(textFieldInput.getText().toString());
         saveState();
     }
@@ -225,23 +238,23 @@ public class MainActivity extends AppCompatActivity {
         editor1.apply();
     }
 
-    private void memoryClearHandler() {
+    private void handleMCButton() {
         calc.memoryClear();
     }
 
-    private void memorySaveHandler() {
+    private void handleMSButton() {
         calc.memorySave(textFieldInput.getText().toString());
     }
 
-    private void memoryReadHandler() {
+    private void handleMRButton() {
         calc.memoryRead();
     }
 
-    private void plusMinusHandler() {
+    private void handlePlusMinusButton() {
         calc.inputPlusMinus(textFieldInput.getText().toString());
     }
 
-    private void percentHandler() {
+    private void handlePercentButton() {
         calc.inputPercent(textFieldInput.getText().toString());
     }
 }
