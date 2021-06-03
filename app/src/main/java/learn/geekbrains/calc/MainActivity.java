@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVE_CALC_TAG = "CalcState";
     private static final String SAVED_MEMORY_REGISTER = "MemoryRegister";
     private static final String SAVED_MEMORY_REGISTER_STATUS = "memRegStatus";
+    private static final String ACTION_CALC = "gb.calc";
     private int currentMode;
 
     @Override
