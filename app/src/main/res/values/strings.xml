@@ -24,4 +24,5 @@
     <string name="key_percent">%</string>
     <string name="key_sqrt">√</string>
     <string name="calc_screen_init_value">0</string>
+    <string name="change_theme">Переключить тему</string>
 </resources>

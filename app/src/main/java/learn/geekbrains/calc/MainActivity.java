@@ -1,10 +1,19 @@
 package learn.geekbrains.calc;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SwitchCompat;
 
+import android.app.ActionBar;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Switch;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textview.MaterialTextView;
@@ -24,12 +33,34 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVE_CALC_TAG = "CalcState";
     private static final String SAVED_MEMORY_REGISTER = "MemoryRegister";
     private static final String SAVED_MEMORY_REGISTER_STATUS = "memRegStatus";
+    private int currentMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        currentMode = AppCompatDelegate.getDefaultNightMode();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_bar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.change_theme) {
+            if (currentMode != AppCompatDelegate.MODE_NIGHT_YES) {
+                currentMode = AppCompatDelegate.MODE_NIGHT_YES;
+            } else {
+                currentMode = AppCompatDelegate.MODE_NIGHT_NO;
+            }
+        }
+        AppCompatDelegate.setDefaultNightMode(currentMode);
+        return true;
     }
 
     @Override
@@ -47,6 +78,12 @@ public class MainActivity extends AppCompatActivity {
         int memoryRegisterStatus = calcPrefs.getInt(SAVED_MEMORY_REGISTER_STATUS, 0);
         calc.setMemoryRegister(Double.parseDouble(memoryRegister));
         calc.setMemoryRegisterStatus(memoryRegisterStatus);
+    }
+
+    @Override
+    protected void onStop() {
+        saveState();
+        super.onStop();
     }
 
     private void initView() {
