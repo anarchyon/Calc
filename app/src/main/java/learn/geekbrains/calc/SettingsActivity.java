@@ -2,6 +2,7 @@ package learn.geekbrains.calc;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import com.google.android.material.button.MaterialButtonToggleGroup;
@@ -11,41 +12,46 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 public class SettingsActivity extends AppCompatActivity {
     private int themeMode;
-    private MaterialButtonToggleGroup toggleGroup;
-    private Button buttonLightTheme, buttonDarkTheme;
-    private static final String EXTRA_THEME_MODE = "theme_mode";
+    private MaterialButtonToggleGroup toggleThemeGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         initViews();
-        setMode(toggleGroup.getCheckedButtonId());
 
+        Intent inputIntent = getIntent();
+        setToggleThemeGroup(inputIntent);
 
         findViewById(R.id.apply_settings).setOnClickListener(b -> {
-            Intent intent = new Intent();
-            intent.putExtra(EXTRA_THEME_MODE, themeMode);
-
+            if (toggleThemeGroup.getCheckedButtonId() != View.NO_ID) {
+                Intent intent = new Intent();
+                intent.putExtra(SettingsActivityContract.EXTRA_THEME_MODE, themeMode);
+                setResult(RESULT_OK, intent);
+            }
+            finish();
         });
     }
 
-    private void initViews() {
-        toggleGroup = findViewById(R.id.toggle_theme);
-        buttonLightTheme = findViewById(R.id.light_theme);
-        buttonDarkTheme = findViewById(R.id.dark_theme);
-
-        toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> setMode(toggleGroup.getCheckedButtonId()));
+    private void setToggleThemeGroup(Intent inputIntent) {
+        if (inputIntent != null) {
+            themeMode = inputIntent.getIntExtra(SettingsActivityContract.EXTRA_CURRENT_THEME_MODE,
+                    AppCompatDelegate.MODE_NIGHT_NO);
+            if (themeMode == AppCompatDelegate.MODE_NIGHT_YES) {
+                toggleThemeGroup.check(R.id.dark_theme);
+            } else toggleThemeGroup.check(R.id.light_theme);
+        }
     }
 
-    private void setMode(int themeButtonId) {
-        switch (themeButtonId) {
-            case R.id.dark_theme:
+    private void initViews() {
+        toggleThemeGroup = findViewById(R.id.toggle_theme);
+
+        toggleThemeGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            if (checkedId == R.id.dark_theme) {
                 themeMode = AppCompatDelegate.MODE_NIGHT_YES;
-                break;
-            case R.id.light_theme:
+            } else if (checkedId == R.id.light_theme) {
                 themeMode = AppCompatDelegate.MODE_NIGHT_NO;
-                break;
-        }
+            }
+        });
     }
 }

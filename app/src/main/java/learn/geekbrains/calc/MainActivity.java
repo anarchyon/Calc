@@ -8,8 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -31,28 +33,23 @@ public class MainActivity extends AppCompatActivity {
     private static final String SAVED_INPUT_TAG = "input";
     private static final String SAVED_MEMORY_STATE = "memory";
     private static final String SAVE_CALC_TAG = "CalcState";
-    private static final String SAVED_MEMORY_REGISTER = "MemoryRegister";
     private static final String SAVED_MEMORY_REGISTER_STATUS = "memRegStatus";
-    private static final String ACTION_CALC = "gb.calc";
+    private static final String CURRENT_MODE = "current_mode";
     private int currentMode;
-    private ActivityResultLauncher<Intent> getContent = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-        @Override
-        public void onActivityResult(ActivityResult result) {
-            if (result.getResultCode() == RESULT_OK) {
-                Intent intent = getIntent();
-                // TODO: 03.06.2021
-            }
-        }
-    });
+    private final ActivityResultLauncher<Integer> getContent = registerForActivityResult(
+            new SettingsActivityContract(),
+            result -> {
+                if (result != null) {
+                    currentMode = result;
+                    AppCompatDelegate.setDefaultNightMode(currentMode);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
-        currentMode = AppCompatDelegate.getDefaultNightMode();
     }
 
     @Override
@@ -65,16 +62,8 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.settings) {
-            Intent intent = new Intent();
-            getContent.launch(new Intent(this, SettingsActivity.class));
-
-//            if (currentMode != AppCompatDelegate.MODE_NIGHT_YES) {
-//                currentMode = AppCompatDelegate.MODE_NIGHT_YES;
-//            } else {
-//                currentMode = AppCompatDelegate.MODE_NIGHT_NO;
-//            }
+            getContent.launch(currentMode);
         }
-        AppCompatDelegate.setDefaultNightMode(currentMode);
         return true;
     }
 
@@ -85,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
         String history = prefs.getString(SAVED_HISTORY_TAG, "");
         String input = prefs.getString(SAVED_INPUT_TAG, "0");
         String memory = prefs.getString(SAVED_MEMORY_STATE, "");
+        currentMode = prefs.getInt(CURRENT_MODE, AppCompatDelegate.MODE_NIGHT_NO);
         textFieldHistory.setText(history);
         textFieldInput.setText(input);
         textFieldMemory.setText(memory);
@@ -230,6 +220,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString(SAVED_HISTORY_TAG, textFieldHistory.getText().toString());
         editor.putString(SAVED_INPUT_TAG, textFieldInput.getText().toString());
         editor.putString(SAVED_MEMORY_STATE, textFieldMemory.getText().toString());
+        editor.putInt(CURRENT_MODE, currentMode);
         editor.apply();
         SharedPreferences calcPrefs = getSharedPreferences(SAVE_CALC_TAG, MODE_PRIVATE);
         SharedPreferences.Editor editor1 = calcPrefs.edit();
