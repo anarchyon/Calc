@@ -13,4 +13,31 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="my_button" parent="Widget.MaterialComponents.Button">
+        <item name="cornerRadius">@dimen/corner_radius</item>
+        <item name="android:insetTop">@dimen/button_inset_top</item>
+        <item name="android:insetBottom">@dimen/button_inset_bottom</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:textSize">@dimen/text_size_button</item>
+        <item name="backgroundTint">@color/button_dark</item>
+        <item name="rippleColor">@color/ripple_color_button_dark</item>
+        <item name="android:textColor">@color/button_text_dark</item>
+    </style>
+
+    <style name="my_button_operation" parent="my_button">
+        <item name="backgroundTint">@color/service_button_color_dark</item>
+        <item name="rippleColor">@color/white</item>
+    </style>
+
+    <style name="my_button_operation.small_button">
+        <item name="android:textSize">@dimen/text_size_small_button</item>
+    </style>
+
+    <style name="my_button_operation.small_button_land">
+        <item name="android:layout_width">@dimen/small_button_size_land</item>
+        <item name="android:textSize">@dimen/text_size_small_button</item>
+    </style>
+
 </resources>
