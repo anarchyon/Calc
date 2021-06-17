@@ -1,23 +1,49 @@
 package learn.geekbrains.calc;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
-
-import java.util.Objects;
+import com.google.android.material.textview.MaterialTextView;
 
 public class MainActivity extends AppCompatActivity {
 
     private MaterialButton key1, key2, key3, key4, key5, key6, key7, key8, key9, key0, keyEquals,
-            keyPlus, keyMinus, keyProduction, keyDivide, keyAC, keyMC, keyMR, keyMS, keyDot;
-    private MaterialButton[] numbersButton = new MaterialButton[10];
-    private TextInputLayout textFieldLayout;
-    private TextInputEditText textField;
+            keyPlus, keyMinus, keyProduction, keyDivide, keyAC, keyMC, keyMR, keyMS, keyDot,
+            keyPlusMinus, keyPercent;
+    private MaterialTextView textFieldInput, textFieldHistory, textFieldMemory;
     private Calculator calc;
+    private boolean isNewOperand;
+    private static final String SAVE_TAG = "MainActivityState";
+    private static final String SAVED_HISTORY_TAG = "history";
+    private static final String SAVED_INPUT_TAG = "input";
+    private static final String SAVED_MEMORY_STATE = "memory";
+    private static final String SAVE_CALC_TAG = "CalcState";
+    private static final String SAVED_MEMORY_REGISTER_STATUS = "memRegStatus";
+    private static final String CURRENT_MODE = "current_mode";
+    private int currentMode;
+    private final ActivityResultLauncher<Integer> getContent = registerForActivityResult(
+            new SettingsActivityContract(),
+            result -> {
+                if (result != null) {
+                    currentMode = result;
+                    AppCompatDelegate.setDefaultNightMode(currentMode);
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,9 +52,51 @@ public class MainActivity extends AppCompatActivity {
         initView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_bar, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.settings) {
+            getContent.launch(currentMode);
+        }
+        return true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences prefs = getSharedPreferences(SAVE_TAG, MODE_PRIVATE);
+        String history = prefs.getString(SAVED_HISTORY_TAG, "");
+        String input = prefs.getString(SAVED_INPUT_TAG, "0");
+        String memory = prefs.getString(SAVED_MEMORY_STATE, "");
+        currentMode = prefs.getInt(CURRENT_MODE, AppCompatDelegate.MODE_NIGHT_NO);
+        textFieldHistory.setText(history);
+        textFieldInput.setText(input);
+        textFieldMemory.setText(memory);
+        SharedPreferences calcPrefs = getSharedPreferences(SAVE_CALC_TAG, MODE_PRIVATE);
+        String memoryRegister = calcPrefs.getString(SAVED_MEMORY_STATE, "0");
+        int memoryRegisterStatus = calcPrefs.getInt(SAVED_MEMORY_REGISTER_STATUS, 0);
+        calc.setMemoryRegister(Double.parseDouble(memoryRegister));
+        calc.setMemoryRegisterStatus(memoryRegisterStatus);
+    }
+
+    @Override
+    protected void onStop() {
+        saveState();
+        super.onStop();
+    }
+
     private void initView() {
-        textField = findViewById(R.id.text_field_result);
-        textFieldLayout = findViewById(R.id.text_field_layout);
+        isNewOperand = true;
+        textFieldInput = findViewById(R.id.text_field_input);
+        textFieldHistory = findViewById(R.id.text_field_history);
+        textFieldHistory.setMovementMethod(new ScrollingMovementMethod());
+        textFieldMemory = findViewById(R.id.text_field_memory);
         setStartingPosition();
         keyDot = findViewById(R.id.key_dot);
         key0 = findViewById(R.id.key_0);
@@ -50,78 +118,134 @@ public class MainActivity extends AppCompatActivity {
         keyMR = findViewById(R.id.key_MR);
         keyMS = findViewById(R.id.key_MS);
         keyMC = findViewById(R.id.key_MC);
+        keyPlusMinus = findViewById(R.id.key_plus_minus);
+        keyPercent = findViewById(R.id.key_percent);
         initClickListeners();
     }
 
     private void initClickListeners() {
         keyAC.setOnClickListener(b -> setStartingPosition());
 
-        keyDot.setOnClickListener(b -> dotHandler());
+        keyDot.setOnClickListener(b -> handleDotButton());
 
-        key0.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key1.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key2.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key3.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key4.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key5.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key6.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key7.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key8.setOnClickListener(b -> numHandler((MaterialButton) b));
-        key9.setOnClickListener(b -> numHandler((MaterialButton) b));
+        key0.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key1.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key2.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key3.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key4.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key5.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key6.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key7.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key8.setOnClickListener(b -> handleNumButton((MaterialButton) b));
+        key9.setOnClickListener(b -> handleNumButton((MaterialButton) b));
 
-        keyPlus.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.SUM));
-        keyMinus.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.DIFF));
-        keyProduction.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.PROD));
-        keyDivide.setOnClickListener(b -> operationHandler((MaterialButton) b, Calculator.DIV));
+        keyPlus.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.SUM));
+        keyMinus.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.DIFF));
+        keyProduction.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.PROD));
+        keyDivide.setOnClickListener(b -> handleOperationButton((MaterialButton) b, Calculator.DIV));
 
-        keyEquals.setOnClickListener(b -> resultHandler());
+        keyEquals.setOnClickListener(b -> handleEqualsButton());
 
-        keyMC.setOnClickListener(b -> memoryClearHandler());
-        keyMS.setOnClickListener(b -> memorySaveHandler());
-        keyMR.setOnClickListener(b -> memoryReadHandler());
+        keyMC.setOnClickListener(b -> handleMCButton());
+        keyMS.setOnClickListener(b -> handleMSButton());
+        keyMR.setOnClickListener(b -> handleMRButton());
+
+        if (keyPercent != null) {
+            keyPercent.setOnClickListener(b -> handlePercentButton());
+        }
+        if (keyPlusMinus != null) {
+            keyPlusMinus.setOnClickListener(b -> handlePlusMinusButton());
+        }
     }
 
     private void setStartingPosition() {
         calc = new Calculator();
-        calc.setSendError(this::showMsgFromCalculator);
-        calc.setSendText(this::showMsgFromCalculator);
+        calc.setSendTextInput(this::insertTextInputFromCalculator);
+        calc.setSendTextHistoryAppend(this::insertHistoryFromCalculator);
         calc.setSendMemoryRegisterStatus(this::showMemoryRegisterStatus);
-        textField.setText(String.valueOf(Calculator.ZERO));
+        calc.setSendIsNewOperandWaiting(this::changeIsNewOperand);
+        textFieldInput.setText(String.valueOf(Calculator.ZERO));
+        textFieldHistory.setText("");
     }
 
-    private void showError(String s) {
-        textFieldLayout.setError(s);
+    private void changeIsNewOperand(Boolean isNewOperand) {
+        this.isNewOperand = isNewOperand;
     }
 
-    private void showMsgFromCalculator(String s) {
-        textField.setText(s);
+    private void insertTextInputFromCalculator(String s) {
+        textFieldInput.setText(s);
+    }
+
+    private void insertHistoryFromCalculator(String s) {
+        textFieldHistory.append(s);
     }
 
     private void showMemoryRegisterStatus(String s) {
-        textFieldLayout.setHint(s);
+        textFieldMemory.setText(s);
     }
 
-    private void numHandler(MaterialButton b) {
-        calc.inputNumber(b.getText().toString());
+    private void handleNumButton(MaterialButton b) {
+        if (isNewOperand) {
+            textFieldInput.setText(String.valueOf(Calculator.ZERO));
+            isNewOperand = false;
+        }
+        textFieldInput.append(b.getText());
+        String text = textFieldInput.getText().toString();
+        if (text.length() > 1 && text.charAt(0) == Calculator.ZERO && text.charAt(1) != Calculator.DOT) {
+            textFieldInput.setText(text.substring(1));
+        }
     }
 
-    private void dotHandler() {
-        calc.inputNumber(String.valueOf(Calculator.DOT));
+    private void handleDotButton() {
+        if (isNewOperand) {
+            textFieldInput.setText(String.valueOf(Calculator.ZERO));
+            isNewOperand = false;
+        }
+        textFieldInput.append(String.valueOf(Calculator.DOT));
     }
 
-    private void operationHandler(MaterialButton b, int operation) {
-        calc.inputOperation(operation, b.getText().toString());
+    private void handleOperationButton(MaterialButton b, int operation) {
+        calc.inputOperation(textFieldInput.getText().toString(), operation, b.getText().toString());
+        saveState();
     }
 
-    private void resultHandler() {
-        calc.inputEquals();
+    private void handleEqualsButton() {
+        calc.inputEquals(textFieldInput.getText().toString());
+        saveState();
     }
 
-    private void memoryClearHandler() {calc.memoryClear();}
+    private void saveState() {
+        SharedPreferences prefs = getSharedPreferences(SAVE_TAG, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SAVED_HISTORY_TAG, textFieldHistory.getText().toString());
+        editor.putString(SAVED_INPUT_TAG, textFieldInput.getText().toString());
+        editor.putString(SAVED_MEMORY_STATE, textFieldMemory.getText().toString());
+        editor.putInt(CURRENT_MODE, currentMode);
+        editor.apply();
+        SharedPreferences calcPrefs = getSharedPreferences(SAVE_CALC_TAG, MODE_PRIVATE);
+        SharedPreferences.Editor editor1 = calcPrefs.edit();
+        editor1.putString(SAVED_MEMORY_STATE, String.valueOf(calc.getMemoryRegister()));
+        editor1.putInt(SAVED_MEMORY_REGISTER_STATUS, calc.getMemoryRegisterStatus());
+        editor1.apply();
+    }
 
-    private void memorySaveHandler() {calc.memorySave();}
+    private void handleMCButton() {
+        calc.memoryClear();
+    }
 
-    private void memoryReadHandler() {
-        //calc.memoryRead();
+    private void handleMSButton() {
+        calc.memorySave(textFieldInput.getText().toString());
+    }
+
+    private void handleMRButton() {
+        calc.memoryRead();
+    }
+
+    private void handlePlusMinusButton() {
+        calc.inputPlusMinus(textFieldInput.getText().toString());
+    }
+
+    private void handlePercentButton() {
+        calc.inputPercent(textFieldInput.getText().toString());
     }
 }

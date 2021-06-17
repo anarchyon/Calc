@@ -21,7 +21,12 @@
     <string name="key_MR">MR</string>
     <string name="key_MC">MC</string>
     <string name="key_plus_minus">±</string>
-    <string name="key_proc">%</string>
+    <string name="key_percent">%</string>
     <string name="key_sqrt">√</string>
     <string name="calc_screen_init_value">0</string>
+    <string name="change_theme">Переключить тему</string>
+    <string name="settings">Настройки</string>
+    <string name="light_theme">Светлая тема</string>
+    <string name="dark_theme">Темная тема</string>
+    <string name="apply_settings">Применить</string>
 </resources>
