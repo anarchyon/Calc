@@ -22,7 +22,8 @@
                     android:id="@+id/text_field_memory"
                     android:layout_height="match_parent"
                     android:gravity="top"
-                    android:textSize="@dimen/text_size_memory"/>
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_size_memory" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/text_field_history"
@@ -58,23 +59,23 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_AC"
-            style="@style/my_button_operands.small_button"
+            style="@style/my_button_operation.small_button"
             android:text="@string/key_AC"
             android:textColor="@color/text_color_AC_button" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_MC"
-            style="@style/my_button_operands.small_button"
+            style="@style/my_button_operation.small_button"
             android:text="@string/key_MC" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_MR"
-            style="@style/my_button_operands.small_button"
+            style="@style/my_button_operation.small_button"
             android:text="@string/key_MR" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_MS"
-            style="@style/my_button_operands.small_button"
+            style="@style/my_button_operation.small_button"
             android:text="@string/key_MS" />
     </TableRow>
 
@@ -97,7 +98,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_divide"
-            style="@style/my_button_operands"
+            style="@style/my_button_operation"
             android:text="@string/key_divide" />
     </TableRow>
 
@@ -120,7 +121,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_production"
-            style="@style/my_button_operands"
+            style="@style/my_button_operation"
             android:text="@string/key_production" />
     </TableRow>
 
@@ -143,7 +144,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_minus"
-            style="@style/my_button_operands"
+            style="@style/my_button_operation"
             android:text="@string/key_minus" />
     </TableRow>
 
@@ -161,12 +162,12 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_equal"
-            style="@style/my_button_operands"
+            style="@style/my_button_operation"
             android:text="@string/key_equal" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/key_plus"
-            style="@style/my_button_operands"
+            style="@style/my_button_operation"
             android:text="@string/key_plus" />
     </TableRow>
 
